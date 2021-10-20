@@ -1,14 +1,16 @@
-import { addDoc, serverTimestamp, onSnapshot, query, collection, orderBy, setDoc, deleteDoc, doc } from "@firebase/firestore";
+import {
+    addDoc, serverTimestamp, onSnapshot, query,
+    collection, orderBy, getDoc, setDoc, deleteDoc, doc
+} from "@firebase/firestore";
 import { db } from "../../firebase"
 import {
     BookmarkIcon, ChatIcon,
-    DotsHorizontalIcon,
     EmojiHappyIcon,
     HeartIcon, PaperAirplaneIcon,
 }
     from "@heroicons/react/outline";
 
-import { HeartIcon as HeartIconFilled } from "@heroicons/react/solid";
+import { HeartIcon as HeartIconFilled, TrashIcon } from "@heroicons/react/solid";
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Moment from "react-moment";
@@ -30,6 +32,35 @@ function Post({ id, username, userImg, img, caption }) {
     ),
         [db, id]
     );
+
+    const deletePost = async () => {
+        var ref = doc(db, 'posts', id);
+        const docSnap = await getDoc(ref);
+        if (docSnap.data().username === session.user.username) {
+            let answer = confirm("Are you sure want to DELETE this Post?")
+            if (answer) {
+
+                if (!docSnap.exists()) {
+                    alert("document does not exist");
+                    return;
+                }
+
+                await deleteDoc(ref)
+                    /* .then(() => {
+                        alert("data deleted successfully");
+                    }) */
+                    .catch((error) => {
+                        alert("unsuccessfull operation, error: " + error);
+                    });
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            alert("User cannot delete others Posts, Thank you");
+        }
+    }
 
     useEffect(() =>
         setHasLiked(likes.findIndex(like => like.id === session?.user?.uid) !== -1),
@@ -54,25 +85,31 @@ function Post({ id, username, userImg, img, caption }) {
 
         await addDoc(collection(db, 'posts', id, 'comments'), {
             comment: commentToSend,
-            username: session.user.username,
+            username: session.user.name,
             userImage: session.user.image,
             timestamp: serverTimestamp(),
         });
     };
 
     return (
-        <div className="bg-white my-7 border
-        rounded-sm">
+        <div className="bg-white md:my-7
+         shadow-sm mx-5 my-2 rounded-xl">
 
             {/* header */}
 
-            <div className="flex items-center p-5 ">
+            <div className="flex items-center p-5 border shadow-sm">
                 <img src={userImg}
                     className="rounded-full h-12 w-12 
                 object-contain border p-1 mr-3 "
                     alt="" />
-                <p className="flex-1 font-bold" > {username} </p>
-                <DotsHorizontalIcon className="h-5" />
+                {session ?
+                    <p className="flex-1 font-bold" > {username} </p>
+                    :
+                    <p className="flex-1 font-bold">User</p>
+                }
+                {session && (<TrashIcon
+                    onClick={deletePost}
+                    className="h-5 text-red-500 cursor-pointer" />)}
             </div>
             {/* img */}
 
@@ -105,34 +142,35 @@ function Post({ id, username, userImg, img, caption }) {
                     <BookmarkIcon className="btn" />
                 </div>
             )}
-
-
             {/* caption */}
 
             <p className="p-5 truncate">
                 {likes.length > 0 && (
                     <p className="font-bold mb-1">{likes.length} likes</p>
                 )}
-                <span className="font-bold mr-1"> {username} </span>
+                {session ?
+                    <span className="font-bold mr-1"> {username} </span>
+                    :
+                    <span className="font-bold mr-1"> User </span>}
                 {caption}
             </p>
 
             {/* comments */}
-            {comments.length > 0 && (
-                <div className="ml-10 h-20 overflow-y-scroll scrollbar-thumb-black scrollbar-thin">
+
+            {session && comments.length > 0 && (
+                <div className="ml-10 max-h-20 overflow-y-scroll scrollbar-thumb-black scrollbar-thin">
                     {comments.map(comment => (
                         <div key={comment.id} className="flex items-center space-x-2 mb-3">
                             <img
                                 className="h-7 rounded-full"
                                 src={comment.data().userImage} alt="" />
-
                             <p className="text-sm flex-1"> <span className="font-bold">
                                 {comment.data().username}</span> {" "}
                                 {comment.data().comment}
                             </p>
                             <Moment
                                 fromNow
-                                className="pr-5 text-xs">
+                                className="pr-5 text-xs" >
                                 {comment.data().timestamp?.toDate()}
                             </Moment>
                         </div>

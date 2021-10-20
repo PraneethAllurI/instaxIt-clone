@@ -129,7 +129,7 @@ function Modal() {
                                         <div className="mt-2">
                                             <input type="text"
                                                 className="border-none focus:ring-0 w-full text-center"
-                                                placeholder="enter caption"
+                                                placeholder="Enter caption"
                                                 ref={captionRef}
                                             />
                                         </div>
@@ -144,7 +144,7 @@ function Modal() {
                                     font-medium text-white hover:bg-red-700 focus:outline-none
                                     focus:ring-2 foucs:ring-offset-2 focus:ring-red-500 sm:text-sm
                                     disabled:bg-gray-300 disabled:cursor-not-allowed hover:disabled:bg-gray-300">
-                                        {loading ? "Uploading....." : "Upload Post"}
+                                        {loading ? "Uploading.." : "Upload Post"}
                                     </button>
                                 </div>
                             </div>

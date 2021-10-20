@@ -11,14 +11,14 @@ function signIn({ providers }) {
              justify-center min-h-screen py-2 -mt-56 px-14
              text-center
             ">
-                <h5>Social Media Clone</h5>
+                <h5 className="p-5 text-3xl md:text-5xl mt-24 md:mt-0">Welcome to 🅸🅽🆂🆃🅰🆇🅸🆃</h5>
                 <div className="mt-32">
                     {Object.values(providers).map((provider) => (
                         <div key={provider.name}>
                             <button
                                 className="p-3 bg-blue-500 rounded-lg text-white"
                                 onClick={() => SignInto(provider.id, { callbackUrl: '/' })}>
-                                Sign in with {provider.name}
+                                ꜱɪɢɴ ɪɴ ᴡɪᴛʜ {provider.name}
                             </button>
                         </div>
                     ))}
